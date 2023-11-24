@@ -1,0 +1,52 @@
+---
+title: "ARIMA"
+author: "shivangsingh.manhas@rutgers.edu"
+date: "11/22/2023"
+output: html_document
+---
+
+```{r}
+library(fpp)
+library(fpp2)
+library(forecast)
+library(readxl)
+#Importing dataset
+AirPassengers <- read_excel("/Users/shivang/Documents/AirPassengers_1.xlsx")
+View(AirPassengers)
+AirpassTS <- ts(AirPassengers$Passengers)
+plot(AirpassTS)
+ndiffs(AirpassTS)
+tsdisplay(AirpassTS)
+airtimeseriesdiff1 <- diff(AirpassTS, differences=1)
+plot(airtimeseriesdiff1)
+tsdisplay(airtimeseriesdiff1)
+#Perporming ARIMA
+auto_fit <- auto.arima(AirpassTS, trace=TRUE, stepwise = FALSE)
+auto_fit
+attributes(auto_fit)
+#Explaining the Output
+summary(auto_fit)
+```
+
+```{r}
+#Residual Analysis
+Acf(auto_fit$residuals)
+Box.test(residuals(auto_fit), lag=20, type="Ljung")
+plot.ts(residuals(auto_fit))
+hist(auto_fit$residuals)
+tsdiag(auto_fit)
+```
+
+```{r}
+#Forecast for the next five periods
+forecast_values <- forecast(auto_fit, h = 5,level=c(99.5))
+print(forecast_values)
+plot(forecast_values)
+```
+```{r}
+#Accuracy of the Model
+accuracy <- accuracy(forecast_values)
+print(accuracy)
+```
+
+
